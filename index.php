@@ -25,7 +25,18 @@
         // Display the main page content by default
         ?>
         <h1>Main Page (Login)</h1>
-        <!-- Your login form goes here -->
+        <h2>Sign in</h2>
+        <form method="POST" action="signin_process.php">
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Sign in</button>
+        </form>
 
         <!-- Buttons to switch pages -->
         <button onclick="location.href='index.php?page=signup'">Go to Sign Up Page</button>
