@@ -1,31 +1,55 @@
 <?php
 include "db_connect.php";
+session_start();
 // Retrieve the submitted form data
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Construct the SELECT query
-    $sql = "SELECT Stud_ID, FName, LName, Stud_Email, Stud_Pass FROM Students WHERE Stud_Email = '$email'";
+    // Construct the SELECT query for students
+    $studentSql = "SELECT Stud_ID, FName, LName, Stud_Email, Stud_Pass FROM Students WHERE Stud_Email = '$email'";
 
-    // Execute the query
-    $result = $mysqli->query($sql);
+    // Execute the query for students
+    $studentResult = $mysqli->query($studentSql);
 
-    // Check if the query was successful and a row was returned
-    if ($result && $result->num_rows > 0) {
+    // Check if the query was successful and a row was returned for students
+    if ($studentResult && $studentResult->num_rows > 0) {
         // Fetch the row as an associative array
-        $row = $result->fetch_assoc();
+        $row = $studentResult->fetch_assoc();
 
-        // Verify the password
+        // Verify the password for students
         if (password_verify($password, $row['Stud_Pass'])) {
-            // Password is correct, authentication successful
+            // Password is correct, authentication successful for students
             // You can store the student's ID or other relevant data in session variables for further use
             $_SESSION['student_id'] = $row['Stud_ID'];
             $_SESSION['student_name'] = $row['FName'] . ' ' . $row['LName'];
 
-            // Redirect the student to a logged-in area or display a success message
+            // Redirect the student to a logged-in area or display a success message for students
             header('Location: database.php');
             exit;
+        }
+    } else {
+        // Construct the SELECT query for landlords
+        $landlordSql = "SELECT Land_ID, FName, LName, Land_Email, Land_Pass, Cell_Number, Land_Phot FROM Landlords WHERE Land_Email = '$email'";
+
+        // Execute the query for landlords
+        $landlordResult = $mysqli->query($landlordSql);
+
+        // Check if the query was successful and a row was returned for landlords
+        if ($landlordResult && $landlordResult->num_rows > 0) {
+            // Fetch the row as an associative array
+            $row = $landlordResult->fetch_assoc();
+
+            // Verify the password for landlords
+            if (password_verify($password, $row['Land_Pass'])) {
+                // Password is correct, authentication successful for landlords
+                // You can store the landlord's ID or other relevant data in session variables for further use
+                $_SESSION['land_id'] = $row['Land_ID'];
+                $_SESSION['landlord_name'] = $row['FName'] . ' ' . $row['LName'];
+                // Redirect the landlord to a specific page for landlords
+                header('Location: landlord_dashboard.php');
+                exit;
+            }
         }
     }
     // Authentication failed, redirect back to the login page with an error message

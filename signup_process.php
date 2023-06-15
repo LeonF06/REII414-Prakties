@@ -25,16 +25,24 @@ if ($role === 'student') {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $cell = $_POST['cell'];
-    $photo = $_POST['photo'];
+    
+    // Handle photo upload
+    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+        $photo = $_FILES['photo']['tmp_name'];
+        $photoData = file_get_contents($photo);
+    } else {
+        $photoData = null; // Set default photo data if no photo uploaded
+    }
 
     // Hash the password
     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
     // Prepare the INSERT statement
-    $sql = "INSERT INTO Landlords (Land_ID, FName, LName, Cell_Number, Land_Email, Land_Pass, Land_Phot) VALUES (NULL, '$firstName', '$lastName', '$cell', '$email', '$hashedPassword', '$photo')";
+    $sql = $mysqli->prepare("INSERT INTO Landlords (Land_ID, FName, LName, Cell_Number, Land_Email, Land_Pass, Land_Phot) VALUES (NULL, ?, ?, ?, ?, ?, ?)");
+    $sql->bind_param("ssssss", $firstName, $lastName, $cell, $email, $hashedPassword, $photoData);
 
     // Execute the statement
-    $result = $mysqli->query($sql);
+    $sql->execute();
 }
 $mysqli->close();
 ?>
