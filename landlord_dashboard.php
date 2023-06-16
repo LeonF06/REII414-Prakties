@@ -3,6 +3,9 @@
 <head>
     <title>Add</title>
     <style>
+        .form-group {
+            margin-bottom: 10px;
+        }
         .photoPreview {
             display: inline-block;
             width: 200px;
@@ -42,28 +45,32 @@
 <body>
     <h1>Add a Property</h1>
     <form method="POST" action="property_process.php" enctype="multipart/form-data">
-        <label for="Address">Address:</label>
-        <input type="text" name="address" id="address">
-        <br>
-        <label for="price">Price:</label>
-        <input type="text" name="price" id="price">
-        <br>
-        <label for="availability">availability:</label>
-        <input type="text" name="availability" id="availability">
-        <br>
-        <label for="popularity">popularity:</label>
-        <input type="text" name="popularity" id="popularity">
-        <br>
-        <label for="dateoflisting">dateoflisting:</label>
-        <input type="text" name="dateoflisting" id="dateoflisting">
-        <br>
-        <label for="photo">Photo:</label>
-        <input type="file" name="photo[]" id="photo" accept="image/*" multiple onchange="previewPhotos(event)">
-        <br>
+        <div class="form-group">
+            <label for="address">Address:</label>
+            <input type="text" name="address" id="address">
+            <button type="button" onclick="window.location.href='maps.php'">Pin</button>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea name="description" id="description"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="price">Price:</label>
+            <input type="number" name="price" id="price" step="0.01">
+        </div>
+        <div class="form-group">
+            <label for="availability">Availability:</label>
+            <input type="date" name="availability" id="availability">
+        </div>
+        <div class="form-group">
+            <label for="photo">Photo:</label>
+            <input type="file" name="photo[]" id="photo" accept="image/*" multiple onchange="previewPhotos(event)">
+        </div>
         <div id="photoPreview"></div>
-        <br>
-        <input type="submit" value="Add">
-        <button type="button" onclick="goBack()">Back</button>
+        <div class="form-group">
+            <input type="submit" value="Add">
+            <button type="button" onclick="goBack()">Back</button>
+        </div>
     </form>
 </body>
 </html>

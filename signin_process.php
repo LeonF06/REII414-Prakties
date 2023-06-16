@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['student_name'] = $row['FName'] . ' ' . $row['LName'];
 
             // Redirect the student to a logged-in area or display a success message for students
-            header('Location: database.php');
+            header('Location: students_dashboard.php');
             exit;
         }
     } else {
