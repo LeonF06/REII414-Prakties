@@ -20,6 +20,7 @@ $sql = "INSERT INTO properties (Prop_ID, Land_ID, Prop_Address, Prop_Description
 // Execute the statement
 $result = $mysqli->query($sql);
 
+
 if ($result) {
     // Get the last inserted property ID
     $propid = $mysqli->insert_id;
@@ -28,16 +29,20 @@ if ($result) {
     $sql = $mysqli->prepare("INSERT INTO Photos (Prop_ID, Phot_Data) VALUES (?, ?)");
 
     // Loop through each uploaded photo
-    if(isset($_FILES['photo'])){
+    if (isset($_FILES['photo'])) {
         $photoCount = count($_FILES['photo']['name']);
-        for($i=0; $i<$photoCount; $i++){
+        for ($i = 0; $i < $photoCount; $i++) {
             $photo = $_FILES['photo']['tmp_name'][$i];
-            $photoData = file_get_contents($photo);
+            $photoFileName = $_FILES['photo']['name'][$i];
+            $targetPath = 'uploads/' . $photoFileName;
+            
+            // Move the uploaded file to the target directory
+            move_uploaded_file($photo, $targetPath);
             
             // Bind parameters and execute the statement
-            $sql->bind_param("ss", $propid, $photoData);
+            $sql->bind_param("ss", $propid, $targetPath);
             $sql->execute();
-        }
+        }   
     }
 } else {
     // Display the SQL error message
