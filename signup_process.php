@@ -14,10 +14,11 @@ if ($role === 'student') {
     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
     // Prepare the INSERT statement
-    $sql = "INSERT INTO Students (Stud_ID, FName, LName, Stud_Email, Stud_Pass) VALUES (NULL, '$firstName', '$lastName', '$email', '$hashedPassword')";
+    $sql = $mysqli->prepare("INSERT INTO Students (Stud_ID, FName, LName, Stud_Email, Stud_Pass) VALUES (NULL, ?, ?, ?, ?)");
+    $sql->bind_param("ssss", $firstName, $lastName, $email, $hashedPassword);
 
     // Execute the statement
-    $result = $mysqli->query($sql);
+    $sql->execute();
 
 } elseif ($role === 'landlord') {
     $firstName = $_POST['firstName'];
@@ -44,5 +45,6 @@ if ($role === 'student') {
     // Execute the statement
     $sql->execute();
 }
+$sql->close();
 $mysqli->close();
 ?>

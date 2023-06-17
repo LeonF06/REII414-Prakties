@@ -1,16 +1,20 @@
 <?php
 include "db_connect.php";
 session_start();
+
 // Retrieve the submitted form data
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
     // Construct the SELECT query for students
-    $studentSql = "SELECT Stud_ID, FName, LName, Stud_Email, Stud_Pass FROM Students WHERE Stud_Email = '$email'";
-
+    $studentSql = "SELECT Stud_ID, FName, LName, Stud_Email, Stud_Pass FROM Students WHERE Stud_Email = ?";
+    $studentStmt = $mysqli->prepare($studentSql);
+    $studentStmt->bind_param("s", $email);
+    
     // Execute the query for students
-    $studentResult = $mysqli->query($studentSql);
+    $studentStmt->execute();
+    $studentResult = $studentStmt->get_result();
 
     // Check if the query was successful and a row was returned for students
     if ($studentResult && $studentResult->num_rows > 0) {
@@ -30,10 +34,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } else {
         // Construct the SELECT query for landlords
-        $landlordSql = "SELECT Land_ID, FName, LName, Land_Email, Land_Pass, Cell_Number, Land_Phot FROM Landlords WHERE Land_Email = '$email'";
+        $landlordSql = "SELECT Land_ID, FName, LName, Land_Email, Land_Pass, Cell_Number, Land_Phot FROM Landlords WHERE Land_Email = ?";
+        $landlordStmt = $mysqli->prepare($landlordSql);
+        $landlordStmt->bind_param("s", $email);
 
         // Execute the query for landlords
-        $landlordResult = $mysqli->query($landlordSql);
+        $landlordStmt->execute();
+        $landlordResult = $landlordStmt->get_result();
 
         // Check if the query was successful and a row was returned for landlords
         if ($landlordResult && $landlordResult->num_rows > 0) {

@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,7 +21,8 @@
         }
 
         #calculateDistanceButton,
-        #saveLocationButton {
+        #saveLocationButton,
+        #distanceLabel {
             display: none;
             margin-left: 10px;
         }
@@ -42,16 +47,19 @@
     <!-- Include Leaflet CSS and JavaScript -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/es6-promise@4.2.8/dist/es6-promise.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <h1>Map Search</h1>
-    <form id="searchForm">
-        <input type="text" id="address" placeholder="Enter an address">
+    <form id="searchForm" action="landlord_dashboard.php" method="GET">
+        <input type="text" id="address" name="address" placeholder="Enter an address">
         <button type="submit">Search</button>
-        <button id="calculateDistanceButton" onclick="calculateDistance()">Calculate distance</button>
-        <button id="saveLocationButton" onclick="saveLocation()">Save location</button>
+        <button id="calculateDistanceButton" onclick="calculateDistances()">Calculate distances</button>
+        <button id="saveLocationButton" onclick="saveLocation(pinnedLocation)">Save location</button>
     </form>
     <div id="map"></div>
+    <textarea id="distanceTextArea" rows="6" cols="40"></textarea>
 
     <script>
         // Initialize the map
@@ -65,6 +73,8 @@
 
         var pinnedMarker = null;
         var pinnedLocation = null;
+        var routeLayers = [];
+        var gateMarkers = [];
 
         // Function to handle form submission
         document.getElementById('searchForm').addEventListener('submit', function(e) {
@@ -126,10 +136,14 @@
             // Bind a popup to the marker
             pinnedMarker.bindPopup(address).openPopup();
 
+
+
             // Store the pinned location
             pinnedLocation = location;
 
-            // Show the "Calculate distance" and "Save location" buttons
+            //$finalLocation = pinnedLocation;
+
+            // Show the "Calculate distances" and "Save location" buttons
             document.getElementById('calculateDistanceButton').style.display = 'block';
             document.getElementById('saveLocationButton').style.display = 'block';
 
@@ -140,21 +154,93 @@
             map.setView(location, zoom);
         }
 
-        function calculateDistance() {
+        function calculateDistances() {
             if (pinnedLocation) {
-                // Send the pinned location coordinates to the calculate_distance.php script
-                var url = 'calculate_distance.php?lat=' + pinnedLocation.lat + '&lng=' + pinnedLocation.lng;
-                window.location.href = url;
+                var gateCoordinates = [
+                    { name: 'Gate A', lat: -26.695400, lng: 27.088731 },
+                    { name: 'Gate B', lat: -26.693543, lng: 27.091154 },
+                    { name: 'Gate C', lat: -26.690207, lng: 27.086658 },
+                    { name: 'Gate D', lat: -26.690416, lng: 27.093102 },
+                    { name: 'Gate E', lat: -26.684412, lng: 27.095134 },
+                    { name: 'Gate F', lat: -26.677807, lng: 27.096124 }
+                ];
+
+                // Clear existing route layers and gate markers
+                routeLayers.forEach(function(layer) {
+                    map.removeLayer(layer);
+                });
+                gateMarkers.forEach(function(marker) {
+                    map.removeLayer(marker);
+                });
+
+                // Clear the distance text area
+                document.getElementById('distanceTextArea').value = '';
+
+                // Calculate distances and draw routes for each gate
+                gateCoordinates.forEach(function(gate) {
+                    var startLatLng = L.latLng(pinnedLocation.lat, pinnedLocation.lng);
+                    var endLatLng = L.latLng(gate.lat, gate.lng);
+                    var coordinates = [startLatLng, endLatLng];
+
+                    // Make a request to OpenRouteService API for route information
+                    axios.get('https://api.openrouteservice.org/v2/directions/driving-car', {
+                        params: {
+                            api_key: '5b3ce3597851110001cf6248a8e3652f1d3e4d2081c5f654b5c9b97c',
+                            start: startLatLng.lng + ',' + startLatLng.lat,
+                            end: endLatLng.lng + ',' + endLatLng.lat
+                        }
+                    }).then(function(response) {
+                        var route = response.data.features[0];
+                        var distance = route.properties.summary.distance / 1000; // Convert to kilometers
+
+                        // Display the distance in the text area
+                        document.getElementById('distanceTextArea').value += gate.name + ': ' + distance.toFixed(2) + ' km\n';
+
+                        // Draw the route on the map
+                        var routeCoordinates = route.geometry.coordinates.map(function(coord) {
+                            return [coord[1], coord[0]]; // Reverse the order of coordinates
+                        });
+
+                        var routeLayer = L.polyline(routeCoordinates).addTo(map);
+                        routeLayers.push(routeLayer);
+                    }).catch(function(error) {
+                        console.log('Error occurred while fetching route information:', error);
+                    });
+
+                    // Add gate marker to the map
+                    var gateMarker = L.marker([gate.lat, gate.lng]).addTo(map);
+                    gateMarker.bindPopup(gate.name);
+                    gateMarkers.push(gateMarker);
+                });
             } else {
                 alert('Please pin a location on the map first.');
             }
         }
 
-        function saveLocation() {
+        function saveLocation(pinnedLocation) {
             if (pinnedLocation) {
-                // Send the pinned location coordinates to the save_location.php script
-                var url = 'save_location.php?lat=' + pinnedLocation.lat + '&lng=' + pinnedLocation.lng;
-                window.location.href = url;
+                // Print the value of pinnedLocation
+                console.log(pinnedLocation);
+
+                // Create a form dynamically
+                var form = document.createElement('form');
+                form.action = 'save_property_data.php';
+                form.method = 'POST';
+
+                // Create a hidden input field with the value of pinnedLocation
+                var hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'pinnedLocation';
+                hiddenInput.value = JSON.stringify(pinnedLocation);
+
+                // Append the hidden input field to the form
+                form.appendChild(hiddenInput);
+
+                // Append the form to the document body
+                document.body.appendChild(form);
+
+                // Submit the form
+                form.submit();
             } else {
                 alert('Please pin a location on the map first.');
             }

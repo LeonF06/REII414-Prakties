@@ -1,5 +1,13 @@
 <?php
 include "db_connect.php";
+
+if (isset($_GET['incrementPopularity'])) {
+    $propID = $_GET['incrementPopularity'];
+
+    // Increment the popularity value for the given property
+    $incrementSql = "UPDATE Properties SET Prop_Popularity = Prop_Popularity + 1 WHERE Prop_ID = '$propID'";
+    $mysqli->query($incrementSql);
+}
 ?>
 
 <!DOCTYPE html>
@@ -111,6 +119,24 @@ include "db_connect.php";
             // Submit the form for searching properties
             document.getElementById("searchForm").submit();
         }
+
+        function incrementPopularity(propID) {
+        // Send an AJAX request to the PHP script to increment the popularity
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "?incrementPopularity=" + propID, true);
+
+        xhttp.onreadystatechange = function() {
+            if (xhttp.readyState === 4 && xhttp.status === 200) {
+                // Update the displayed popularity value in the table
+                var popularityElement = document.getElementById("popularity-" + propID);
+                if (popularityElement) {
+                    popularityElement.innerText = parseInt(popularityElement.innerText) + 1;
+                }
+            }
+        };
+
+    xhttp.send();
+    }
     </script>
 </head>
 
@@ -126,17 +152,8 @@ include "db_connect.php";
         <label for="availability">Available Before:</label>
         <input type="date" id="availability" name="availability" value="<?php echo isset($_GET['availability']) ? $_GET['availability'] : ''; ?>">
 
-        <label for="popularity">Popularity:</label>
-        <select id="popularity" name="popularity">
-            <option value="">-- Any --</option>
-            <?php
-            $selectedPopularity = isset($_GET['popularity']) ? $_GET['popularity'] : '';
-            for ($i = 0; $i <= 10; $i++) {
-                $selected = $i == $selectedPopularity ? 'selected' : '';
-                echo "<option value='$i' $selected>$i</option>";
-            }
-            ?>
-        </select>
+        <label for="popularity">Popularity Above:</label>
+        <input type="number" name="popularity" id="popularity" step="1">
 
         <label for="landlord">Landlord:</label>
         <input type="text" id="landlord" name="landlord" value="<?php echo isset($_GET['landlord']) ? $_GET['landlord'] : ''; ?>">
@@ -184,7 +201,7 @@ include "db_connect.php";
     }
 
     if (!empty($popularity)) {
-        $sql .= " AND p.Prop_Popularity = '$popularity'";
+        $sql .= " AND p.Prop_Popularity >= '$popularity'";
     }
 
     if (!empty($landlord)) {
@@ -207,9 +224,9 @@ include "db_connect.php";
             echo "<td>" . $row["Prop_Description"] . "</td>";
             echo "<td>" . $row["Prop_Price"] . "</td>";
             echo "<td>" . $row["Prop_Avail"] . "</td>";
-            echo "<td>" . $row["Prop_Popularity"] . "</td>";
+            echo "<td id='popularity-" . $propID . "'>" . $row["Prop_Popularity"] . "</td>";
             echo "<td>" . $row["FName"] . " " . $row["LName"] . "</td>";
-            echo "<td>" . $row["Land_Email"] . "</td>";
+            echo "<td><a href='mailto:" . $row["Land_Email"] . "'>" . $row["Land_Email"] . "</a></td>";
             echo "<td>" . $row["Cell_Number"] . "</td>";
 
             // Retrieve related photos
@@ -220,7 +237,7 @@ include "db_connect.php";
                 echo "<td>";
                 while ($photoRow = $photosResult->fetch_assoc()) {
                     $photoData = $photoRow["Phot_Data"];
-                    echo "<img src='$photoData' alt='Property Photo' class='enlarge-image' style='max-width: 200px; max-height: 200px;' onclick='enlargeImage(this)'>";
+                    echo "<img src='$photoData' alt='Property Photo' class='enlarge-image' style='max-width: 200px; max-height: 200px;' onclick='incrementPopularity($propID); enlargeImage(this)'>";
                 }
                 echo "</td>";
             } else {
