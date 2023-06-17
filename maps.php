@@ -177,7 +177,7 @@ session_start();
                 document.getElementById('distanceTextArea').value = '';
 
                 // Calculate distances and draw routes for each gate
-                gateCoordinates.forEach(function(gate) {
+                gateCoordinates.forEach(function(gate, index) {
                     var startLatLng = L.latLng(pinnedLocation.lat, pinnedLocation.lng);
                     var endLatLng = L.latLng(gate.lat, gate.lng);
                     var coordinates = [startLatLng, endLatLng];
@@ -195,6 +195,9 @@ session_start();
 
                         // Display the distance in the text area
                         document.getElementById('distanceTextArea').value += gate.name + ': ' + distance.toFixed(2) + ' km\n';
+
+                        // Save the distance on the server
+                        saveDistance(distance, index + 1);
 
                         // Draw the route on the map
                         var routeCoordinates = route.geometry.coordinates.map(function(coord) {
@@ -215,6 +218,32 @@ session_start();
             } else {
                 alert('Please pin a location on the map first.');
             }
+        }
+
+        function saveDistance(distance, index) {
+            // Create a new XMLHttpRequest object
+            var xhr = new XMLHttpRequest();
+
+            // Set up the request
+            xhr.open('POST', 'save_distance.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+            // Set up the callback function
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    // Request finished successfully
+                    console.log('Distance saved: ' + distance + ' km');
+                } else if (xhr.readyState === XMLHttpRequest.DONE && xhr.status !== 200) {
+                    // Request finished with an error
+                    console.log('Error saving distance: ' + xhr.status);
+                }
+            };
+
+            // Prepare the data to send
+            var data = 'distance=' + encodeURIComponent(distance.toFixed(2)) + '&index=' + encodeURIComponent(index);
+
+            // Send the request
+            xhr.send(data);
         }
 
         function saveLocation(pinnedLocation) {

@@ -47,6 +47,20 @@ if ($result) {
             $sql->execute();
         }   
     }
+
+    // Insert distances into the distances table
+    $distances = array();
+    for ($i = 1; $i <= 6; $i++) {
+        if (isset($_SESSION['distance' . $i])) {
+            $distances[$i] = $_SESSION['distance' . $i];
+        }
+    }
+
+    // Prepare the INSERT statement for distances
+    $sql = $mysqli->prepare("INSERT INTO distances (Prop_ID, Dist_A, Dist_B, Dist_C, Dist_D, Dist_E, Dist_F) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $sql->bind_param("idddddd", $propid, $distances[1], $distances[2], $distances[3], $distances[4], $distances[5], $distances[6]);
+    $sql->execute();
+
 } else {
     // Display the SQL error message
     echo "Error: " . $mysqli->error;
