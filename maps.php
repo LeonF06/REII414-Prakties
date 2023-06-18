@@ -30,19 +30,39 @@ $_SESSION['lastActivity'] = time();
         body {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
             margin: 20px;
+            font-family: Arial, sans-serif;
         }
 
         h1 {
+            margin-top: 0;
             margin-bottom: 10px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        p {
+            font-size: 16px;
         }
 
         #calculateDistanceButton,
-        #saveLocationButton,
-        #distanceLabel {
-            display: none;
-            margin-left: 10px;
+        #saveLocationButton {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        #calculateDistanceButton:hover,
+        #saveLocationButton:hover {
+            background-color: #45a049;
         }
 
         #map {
@@ -62,6 +82,7 @@ $_SESSION['lastActivity'] = time();
         h2 {
             margin-top: 0;
             margin-bottom: 10px;
+            font-size: 20px;
         }
 
         #distanceTextArea {
@@ -71,6 +92,7 @@ $_SESSION['lastActivity'] = time();
 
         #gateInfo {
             margin-left: 20px;
+            font-size: 16px;
         }
 
     </style>
@@ -104,25 +126,6 @@ $_SESSION['lastActivity'] = time();
             <p>Gate F: Ingenieurskampus hek</p>
         </div>
     </div>
-    <style>
-        /* Add CSS styles for the heading and text area */
-        h2 {
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
-
-        #distanceTextArea {
-            margin-top: 5px;
-        }
-
-        #textAreaContainer {
-            margin-right: 20px;
-        }
-
-        #gateInfo p {
-            margin: 0;
-        }
-    </style>
 
     <script>
         // Initialize the map
