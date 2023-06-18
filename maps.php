@@ -209,10 +209,6 @@ $_SESSION['lastActivity'] = time();
 
             //$finalLocation = pinnedLocation;
 
-            // Show the "Calculate distances" and "Save location" buttons
-            document.getElementById('calculateDistanceButton').style.display = 'block';
-            document.getElementById('saveLocationButton').style.display = 'block';
-
             // Get current zoom level
             var zoom = map.getZoom();
 

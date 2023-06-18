@@ -24,6 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Verify the password for students
         if (password_verify($password, $row['Stud_Pass'])) {
             // Password is correct, authentication successful for students
+
+            // Clear landlord session variables if they exist
+            unset($_SESSION['land_id']);
+            unset($_SESSION['landlord_name']);
+
             // You can store the student's ID or other relevant data in session variables for further use
             $_SESSION['student_id'] = $row['Stud_ID'];
             $_SESSION['student_name'] = $row['FName'] . ' ' . $row['LName'];
@@ -50,6 +55,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Verify the password for landlords
             if (password_verify($password, $row['Land_Pass'])) {
                 // Password is correct, authentication successful for landlords
+
+                // Clear student session variables if they exist
+                unset($_SESSION['student_id']);
+                unset($_SESSION['student_name']);
+                
                 // You can store the landlord's ID or other relevant data in session variables for further use
                 $_SESSION['land_id'] = $row['Land_ID'];
                 $_SESSION['landlord_name'] = $row['FName'] . ' ' . $row['LName'];

@@ -19,10 +19,11 @@ $point = $_SESSION['point'];
 echo "The point variable values are: " . $_SESSION['point'];
 
 // Prepare the INSERT statement
-$sql = "INSERT INTO properties (Prop_ID, Land_ID, Prop_Address, Prop_Location, Prop_Description, Prop_Price, Prop_Avail, Prop_Popularity) VALUES (NULL, '$landid', '$address', ST_GeomFromText('$point'), '$description', '$price', '$availability', '$popularity')";
+$sql = $mysqli->prepare("INSERT INTO properties (Prop_ID, Land_ID, Prop_Address, Prop_Location, Prop_Description, Prop_Price, Prop_Avail, Prop_Popularity) VALUES (NULL, ?, ?, ST_GeomFromText(?), ?, ?, ?, ?)");
 
-// Execute the statement
-$result = $mysqli->query($sql);
+// Bind parameters and execute the statement
+$sql->bind_param("sssssss", $landid, $address, $point, $description, $price, $availability, $popularity);
+$result = $sql->execute();
 
 if ($result) {
     // Get the last inserted property ID

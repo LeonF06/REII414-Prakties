@@ -64,6 +64,7 @@ if ($role === 'student') {
     if ($existingUserQuery->num_rows > 0) {
         // User already exists, handle the error
         echo "User with the provided email already exists.";
+        exit;
     } else {
         // User doesn't exist, proceed with account creation
 
@@ -82,4 +83,5 @@ if ($role === 'student') {
 }
 
 $mysqli->close();
+header('Location: index.php');
 ?>

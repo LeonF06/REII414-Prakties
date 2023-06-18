@@ -29,11 +29,42 @@ $_SESSION['lastActivity'] = time();
     <style>
         body {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            min-height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+        }
+
+        .menu-bar {
+            background-color: #4CAF50;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .menu {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+        }
+
+        .menu li {
+            flex: 1;
+            text-align: center;
+        }
+
+        .menu a {
+            display: block;
+            padding: 10px 0;
+            text-decoration: none;
+            color: white;
+        }
+
+        .menu a:hover {
+        background-color: #ddd;
         }
 
         .container {
@@ -41,6 +72,7 @@ $_SESSION['lastActivity'] = time();
             flex-direction: column;
             align-items: flex-start;
             text-align: left;
+            margin-top: 20px;
         }
 
         h1 {
@@ -138,9 +170,20 @@ $_SESSION['lastActivity'] = time();
     </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Add a Property</h1>
-        <form method="POST" action="property_process.php" enctype="multipart/form-data">
+<div class="menu-bar">
+    <ul class="menu">
+        <li><a href="index.php">Home</a></li>
+        <?php if (isset($_SESSION['student_id']) || isset($_SESSION['land_id'])): ?>
+            <li><a href="students_dashboard.php">Properties</a></li>
+        <?php endif; ?>
+        <?php if (isset($_SESSION['land_id'])): ?>
+            <li><a href="landlord_dashboard.php">Add a Property</a></li>
+        <?php endif; ?>
+    </ul>
+</div>
+<div class="container">
+    <h1>Add a Property</h1>
+    <form method="POST" action="property_process.php" enctype="multipart/form-data">
             <div class="form-group right-align">
                 <label for="address">Address:</label>
                 <input type="text" name="address" id="address" placeholder="Enter address">
