@@ -1,3 +1,27 @@
+<?php
+session_start();
+
+// Set the session timeout in seconds (30 minutes)
+$sessionTimeout = 1800;
+
+// Check if the session variable for the last activity timestamp exists
+if (isset($_SESSION['lastActivity'])) {
+    // Calculate the time difference between the current time and the last activity
+    $inactiveTime = time() - $_SESSION['lastActivity'];
+
+    // Check if the user has been inactive for longer than the session timeout
+    if ($inactiveTime >= $sessionTimeout) {
+        // Expire the session and redirect the user to the login page
+        session_unset();
+        session_destroy();
+        header("Location: index.php");
+        exit();
+    }
+}
+// Update the last activity timestamp in the session
+$_SESSION['lastActivity'] = time();
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -37,28 +61,9 @@
                     <label for="password">Password:</label>
                     <input type="password" name="password" id="password">
                     <br>
-                    <label for="photo">Photo:</label>
-                    <input type="file" name="photo" id="photo" accept="image/*" onchange="previewPhoto(event)">
-                    <br>
-                    <img id="photoPreview" src="#" alt="Photo Preview" style="max-width: 200px; max-height: 200px;">
                 `;
             } else {
                 fieldsContainer.innerHTML = '';
-            }
-        }
-        
-        function previewPhoto(event) {
-            var photoInput = event.target;
-            var photoPreview = document.getElementById('photoPreview');
-            
-            if (photoInput.files && photoInput.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    photoPreview.src = e.target.result;
-                };
-                reader.readAsDataURL(photoInput.files[0]);
-            } else {
-                photoPreview.src = '#';
             }
         }
         

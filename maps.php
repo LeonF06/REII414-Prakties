@@ -1,5 +1,25 @@
 <?php
 session_start();
+
+// Set the session timeout in seconds (30 minutes)
+$sessionTimeout = 1800;
+
+// Check if the session variable for the last activity timestamp exists
+if (isset($_SESSION['lastActivity'])) {
+    // Calculate the time difference between the current time and the last activity
+    $inactiveTime = time() - $_SESSION['lastActivity'];
+
+    // Check if the user has been inactive for longer than the session timeout
+    if ($inactiveTime >= $sessionTimeout) {
+        // Expire the session and redirect the user to the login page
+        session_unset();
+        session_destroy();
+        header("Location: index.php");
+        exit();
+    }
+}
+// Update the last activity timestamp in the session
+$_SESSION['lastActivity'] = time();
 ?>
 
 <!DOCTYPE html>
@@ -9,11 +29,9 @@ session_start();
     <style>
         body {
             display: flex;
-            justify-content: flex-start;
-            align-items: flex-start;
             flex-direction: column;
-            margin-top: 20px;
-            margin-left: 20px;
+            align-items: flex-start;
+            margin: 20px;
         }
 
         h1 {
@@ -28,21 +46,33 @@ session_start();
         }
 
         #map {
-            height: 790px;
-            width: 85%;
-            margin-top: 15px;
-            margin-left: 220px;
+            height: 600px;
+            width: 100%;
+            margin-top: 20px;
         }
 
-        #searchForm {
+        #distanceContainer {
             display: flex;
+            flex-direction: row;
             align-items: flex-start;
-            margin-top: 10px;
+            margin-top: 20px;
+            margin-left: 20px;
         }
 
-        #searchForm input[type="text"] {
-            margin-right: 10px;
+        h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
         }
+
+        #distanceTextArea {
+            width: 150px;
+            margin-top: 5px;
+        }
+
+        #gateInfo {
+            margin-left: 20px;
+        }
+
     </style>
     <!-- Include Leaflet CSS and JavaScript -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
@@ -52,14 +82,47 @@ session_start();
 </head>
 <body>
     <h1>Map Search</h1>
+    <p>Try turning on your location. Click anywhere on the map to place a location pinpoint for your property. Click on the calculate distance button to determine the distances to the 6 university gates. Click on the save location button to conclude.</p>
     <form id="searchForm" action="landlord_dashboard.php" method="GET">
-        <input type="text" id="address" name="address" placeholder="Enter an address">
-        <button type="submit">Search</button>
-        <button id="calculateDistanceButton" onclick="calculateDistances()">Calculate distances</button>
-        <button id="saveLocationButton" onclick="saveLocation(pinnedLocation)">Save location</button>
+        <div id="buttonContainer">
+            <button id="calculateDistanceButton" onclick="calculateDistances()">Calculate distances</button>
+            <button id="saveLocationButton" onclick="saveLocation(pinnedLocation)">Save location</button>
+        </div>
     </form>
     <div id="map"></div>
-    <textarea id="distanceTextArea" rows="6" cols="40"></textarea>
+    <div id="distanceContainer">
+        <div id="textAreaContainer">
+            <h2>Distance to gates:</h2>
+            <textarea id="distanceTextArea" rows="6" cols="40"></textarea>
+        </div>
+        <div id="gateInfo">
+            <p>Gate A: Onderwys kampus hek</p>
+            <p>Gate B: Ratau lebone hek</p>
+            <p>Gate C: Weet en sweet hek</p>
+            <p>Gate D: Hoofhek</p>
+            <p>Gate E: Astro hek</p>
+            <p>Gate F: Ingenieurskampus hek</p>
+        </div>
+    </div>
+    <style>
+        /* Add CSS styles for the heading and text area */
+        h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        #distanceTextArea {
+            margin-top: 5px;
+        }
+
+        #textAreaContainer {
+            margin-right: 20px;
+        }
+
+        #gateInfo p {
+            margin: 0;
+        }
+    </style>
 
     <script>
         // Initialize the map

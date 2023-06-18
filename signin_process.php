@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } else {
         // Construct the SELECT query for landlords
-        $landlordSql = "SELECT Land_ID, FName, LName, Land_Email, Land_Pass, Cell_Number, Land_Phot FROM Landlords WHERE Land_Email = ?";
+        $landlordSql = "SELECT Land_ID, FName, LName, Land_Email, Land_Pass, Cell_Number FROM Landlords WHERE Land_Email = ?";
         $landlordStmt = $mysqli->prepare($landlordSql);
         $landlordStmt->bind_param("s", $email);
 

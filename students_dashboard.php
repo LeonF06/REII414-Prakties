@@ -1,4 +1,26 @@
 <?php
+session_start();
+
+// Set the session timeout in seconds (30 minutes)
+$sessionTimeout = 1800;
+
+// Check if the session variable for the last activity timestamp exists
+if (isset($_SESSION['lastActivity'])) {
+    // Calculate the time difference between the current time and the last activity
+    $inactiveTime = time() - $_SESSION['lastActivity'];
+
+    // Check if the user has been inactive for longer than the session timeout
+    if ($inactiveTime >= $sessionTimeout) {
+        // Expire the session and redirect the user to the login page
+        session_unset();
+        session_destroy();
+        header("Location: index.php");
+        exit();
+    }
+}
+// Update the last activity timestamp in the session
+$_SESSION['lastActivity'] = time();
+
 include "db_connect.php";
 
 if (isset($_GET['incrementPopularity'])) {
